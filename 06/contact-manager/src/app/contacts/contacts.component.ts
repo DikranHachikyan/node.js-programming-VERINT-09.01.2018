@@ -26,8 +26,26 @@ export class ContactsComponent implements OnInit {
                                     ()=>console.log('Contacts loaded ...'));
   }
 
-  onSelectContact(idx:number):void{
-    this.selectedContact = this.contacts[idx];
+  onSelectContact(id:string):void{
+     this.contactsService.getContactById(id)
+                          .subscribe( (contact)=>{
+                            console.log(contact);
+                            this.selectedContact = contact;
+                          },
+                          (err)=>console.log(err),
+                          ()=>console.log(`Contact loaded ${id}`)); 
+    //this.selectedContact = this.contacts[idx];
     //console.log(idx);
+  }
+
+  deleteContact(event, id:string):void{
+    this.contactsService.deleteContact(id)
+                        .subscribe( (status)=>{
+                           console.log(status); 
+                           this.getContacts();  
+                        },
+                        (err)=>console.log(err),
+                        ()=>console.log(`Contact deleted ${id}`));
+    event.stopPropagation();
   }
 }

@@ -1,11 +1,20 @@
 <div class="col-sm-8">
     <h2>Conatct Manager</h2>
+    <a routerLink="/add-new" class="btn btn-primary">
+      Add New 
+      <span class="glyphicon glyphicon-user"></span>
+    </a>
     <div class="list-group">
-        <a href="#" 
+        <a 
            class="list-group-item" 
-           *ngFor="let contact of contacts; index as idx"
-           (click)="onSelectContact(idx)"
+           *ngFor="let contact of contacts"
+           (click)="onSelectContact(contact._id)"
            [class.active]="contact === selectedContact">
+           <button
+                  class="btn btn-danger pull-right"
+                  (click)="deleteContact($event,contact._id)">
+                  <span class="glyphicon glyphicon-trash"></span>       
+           </button>
             <h4>
                 {{contact.firstName}} {{contact.lastName}}
                 <small>{{contact.created_date | date:format:'dd.MM.yyyy'}}</small>
@@ -15,6 +24,9 @@
                 <span class="badge">{{contact.email}}</span> 
             </p>
         </a>
-    </div>
+ </div>
 </div>
-<app-contact-details [contact]="selectedContact"></app-contact-details>
+<app-contact-details 
+          [contact]="selectedContact"
+          (contactUpdated)="getContacts()">          
+</app-contact-details>

@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { Location } from '@angular/common';
 
-import { Input } from '@angular/core';
+import { Input, Output, EventEmitter } from '@angular/core';
+import { ContactsService } from '../contacts.service';
 
+import { Router, NavigationEnd} from '@angular/router';
 import { Contact } from '../contacts/contact';
 
 @Component({
@@ -11,13 +14,46 @@ import { Contact } from '../contacts/contact';
 })
 export class ContactDetailsComponent implements OnInit {
   @Input() contact:Contact; 
-  message:string;
+  @Output() contactUpdated:EventEmitter<any> = new EventEmitter();
 
-  constructor() { }
+  constructor(private contactsService:ContactsService,
+              private router:Router,
+              private location:Location) { 
+      this.router.events
+                 .subscribe( (event)=>{
+                    if( event instanceof NavigationEnd && event.url === '/add-new'){
+                      this.contact = new Contact();
+                    }
+                 });
+  }
 
   ngOnInit() {
   }
-  onClick(){
-    this.mesesage = 'Button Clicked';
+  saveContact(){
+    if( this.contact._id ){
+      this.contactsService.updateContact(this.contact)
+                        .subscribe( (contact)=>{
+                          console.log(contact);
+                          this.contact = contact;
+                          this.contactUpdated.emit('update');
+                        },
+                        (err)=>console.log(err),
+                        ()=>console.log(`Contact updated`));  
+    }
+    else{
+      this.contact._id = this.contact.created_date = undefined;
+
+      this.contactsService.addNewContact(this.contact)
+                          .subscribe( (contact)=>{
+                            console.log(contact);
+                            this.contact = contact;
+                          },
+                          (err)=>console.log(err),
+                          ()=>console.log(`Contact added`));
+    }
+  }
+
+  goBack():void{
+    this.location.back();
   }
 }
